@@ -1,0 +1,53 @@
+services:                         # Defines the services (containers) to be run.
+  api:                            # Name of the service (here, "api").
+    build: ./api
+    ports:
+      - 8080:8080
+    env_file:
+      - .env                      # Shared .env file for API and database
+    networks:
+      - web
+      - db-net
+      - data
+
+  frontend:
+    build: ./web
+    expose:
+      - 5000
+    env_file:
+      - .frontend.env             # Separate env file for frontend
+    volumes:
+      - frontend-static:/app/webapp/static
+    networks:
+      - web
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    volumes:
+      - frontend-static:/app/static:ro
+    networks:
+      - web
+
+  postgres:
+    image: 'postgres:17.0-alpine'
+    env_file:
+      - .env                      # Shared .env file for API and database
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    networks:
+      - db-net
+      - data
+
+volumes:
+  postgres:
+  frontend-static:
+
+networks:
+  db-net:
+    driver: bridge
+  web:
+    driver: bridge
+  data:
+    driver: bridge
