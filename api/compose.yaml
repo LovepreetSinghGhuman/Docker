@@ -1,0 +1,36 @@
+services:                         # Defines the services (containers) to be run.
+  api:                            # Name of the service (here, "api").
+    build: ./api                  # Builds the Docker image from the Dockerfile in the ./api directory.
+    ports:                        # Maps ports between the host and the container.
+      - 8080:8080                 # Maps port 8080 on the host to port 8080 in the container.
+    environment:                  # Sets environment variables for the container.
+      - POSTGRES_USER=student_user        # Sets the PostgreSQL username.
+      - POSTGRES_PASSWORD=student_password # Sets the PostgreSQL password.
+      - POSTGRES_DATABASE=labo           # Sets the PostgreSQL database name.
+      - POSTGRES_PORT=5432               # Sets the PostgreSQL port.
+      - POSTGRES_HOST=postgres           # Sets the PostgreSQL host (likely another service).
+      - PORT=8080                        # Sets the application port to 8080.
+
+  frontend:
+    build: ./web
+    expose:
+      - 5000
+    environment:
+      - VARIABLE=VALUE
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+
+  postgres:
+    image: 'postgres:17.0-alpine'
+    environment:
+      - POSTGRES_USER=student_user
+      - POSTGRES_PASSWORD=student_password
+      - POSTGRES_DB=labo
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+
+volumes:
+  postgres:
